@@ -5,7 +5,7 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
 
-public_users.post("/register", (req,res) => {
+public_users.post("/register", async (req,res) => {
   //Write your code here
   const username = req.body.username;
   const password = req.body.password;
@@ -24,14 +24,17 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  //Write your code here
+public_users.get('/', async function (req, res) {
+  try {
+    const booksList = await getBookList();
+  } catch (error) {
+    
+  }
   return res.send(JSON.stringify(books, null, 4));
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
+public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
   return res.send(JSON.stringify(books[isbn], null, 4));
  });
