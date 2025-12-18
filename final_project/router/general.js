@@ -4,6 +4,7 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+const axios = require('axios');
 
 public_users.post("/register", async (req,res) => {
   //Write your code here
@@ -23,34 +24,59 @@ public_users.post("/register", async (req,res) => {
   }
 });
 
+// Function to implement await and async
+function getBooksAsync() {
+    return Promise.resolve(books);
+  }
+
 // Get the book list available in the shop
 public_users.get('/', async function (req, res) {
   try {
-    const booksList = await getBookList();
+    const response = await getBooksAsync();
+    return res.status(200).json(response);
   } catch (error) {
-    
+    return res.status(500).json({message: "Unable to fetch books."})
   }
-  return res.send(JSON.stringify(books, null, 4));
 });
 
+// Function to implement await and async - book with isbn
+function getBookWithIsbnAsync(isbn) {
+    return Promise.resolve(books[isbn]);
+}
+
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn', function (req, res) {
-  const isbn = req.params.isbn;
-  return res.send(JSON.stringify(books[isbn], null, 4));
- });
+public_users.get('/isbn/:isbn', async function (req, res) {
+    try {
+        const isbn = req.params.isbn;
+        const response = await getBookWithIsbnAsync(isbn);
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({message: "Unable to get fetch the book details."})
+    }
+});
+
+// Function to implement await and async - book with isbn
+function getBookWithAuthor(author) {
+    return Promise.resolve(function() {
+        Object.entries(books).forEach(([key, value]) => {
+            if(value.author === author) {
+                return value;
+            }
+        })
+    });
+}
+
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  const author = req.params.author;
-  let book;
-  Object.entries(books).forEach(([key, value]) => {
-    if(value.author === author) {
-        book = value;
-        return;
-    }
-  })
-  return res.send(JSON.stringify(book, null, 4));
+public_users.get('/author/:author', async function (req, res) {
+  try {
+    const author = req.params.author;
+    const response = await getBookWithAuthor(author);
+    console.log(response);
+    return res.status(200).json(response);
+  } catch (error) {
+      return res.status(500).json({message: "Unable to fetch book."});
+  }
 });
 
 // Get all books based on title
