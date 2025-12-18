@@ -57,40 +57,44 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 
 // Function to implement await and async - book with isbn
 function getBookWithAuthor(author) {
-    return Promise.resolve(function() {
-        Object.entries(books).forEach(([key, value]) => {
-            if(value.author === author) {
-                return value;
-            }
-        })
-    });
+    let book;
+    Object.entries(books).some(([key, value]) => {
+        if(value.author === author) {
+            book = value;
+        }
+    })
+    return Promise.resolve(book);
 }
-
-  
 // Get book details based on author
 public_users.get('/author/:author', async function (req, res) {
   try {
     const author = req.params.author;
     const response = await getBookWithAuthor(author);
-    console.log(response);
     return res.status(200).json(response);
   } catch (error) {
       return res.status(500).json({message: "Unable to fetch book."});
   }
 });
 
+// Get the boooks with title asynchronously
+function getBookWithTitle(title) {
+    let book;
+    Object.entries(books).some(([key, value]) => {
+        if(value.title === title) {
+            book = value;
+        }
+      })
+    return Promise.resolve(book);
+}
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  const title = req.params.title;
-  let book;
-  Object.entries(books).forEach(([key, value]) => {
-    if(value.title === title) {
-        book = value;
-        return;
-    }
-  })
-  return res.send(JSON.stringify(book, null, 4));
+public_users.get('/title/:title',async function (req, res) {
+  try {
+    const title = req.params.title;
+    const response = await getBookWithTitle(title);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.senstatus(500).json({message: "Unable to get book"})
+  }
 });
 
 //  Get book review
